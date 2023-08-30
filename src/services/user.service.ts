@@ -19,7 +19,7 @@ class UserService {
     return await this.model.findByIdAndDelete({ _id: id });
   }
 
-  async findOne(filter: Partial<IUser>) {
+  async find(filter: Partial<IUser>) {
     return await this.model.findOne(filter);
   }
 
