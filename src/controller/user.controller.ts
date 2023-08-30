@@ -90,4 +90,129 @@ class UserController{
           });
     }
 }
+      //logout user
+    async loggedOut(req: Request, res: Response) {
+      try {
+          const token = '';
+          res.cookie("token", token, { httpOnly: true })
+          return res.status(200).json({
+              message: "User logged out successfully",
+              token: token,
+              success: true
+          })
+      } catch(err) {
+          return res.status(500).json({
+              message: 'Internal Server Error' + err,
+              success: false
+          })
+      }
+  };
+      // Getting all users
+      async getUsers(req: Request, res: Response) {
+          try{
+            const getUsers = await userService.findAll({ deleted: false })
+            if (getUsers) {
+                return res.status(200).json({
+                    success: true,
+                    message: "Users found sucessfully" ,
+                    data: getUsers
+                })
+            }
+            return res.status(400).json({
+                success: false,
+                message: "Users not found"
+            })
+          }catch(error){
+              return res.status(500).json({
+                message: 'Internal Server Error' + error,
+                success: false
+          })
+          }
+      }
+      // get a single user
+      async findAUser(req: Request, res: Response) {
+        try {
+                const id = req.params.id
+                const findUser = await userService.find({_id:id})
+                if (findUser) {
+                    return res.status(200).json({
+                        success: true,
+                        message: "User found successfully",
+                        data: findUser
+                    })
+                }
+                return res.status(400).json({
+                    success: false,
+                    message: " User not found"
+                })
+            }catch (error) {
+                return res.status(500).json({
+                  message: 'Internal Server Error' + error,
+                  success: false
+                })
+            }
+      }
+      async updateUser(req: Request, res: Response) {
+        try{
+            const id = req.params.id
+            const updateData = req.body
+            // check if the user exists
+            const findUser = await userService.find({_id:id})
+            if (!findUser){
+              return res.status(400).json({
+              success: false,
+              message: " User not found"
+              })
+            }
+              const updated = await userService.updateOne(id, updateData)
+              if (updated){
+                return res.status(200).json({
+                  success: true,
+                  message: "User account updated successfully",
+                  updated
+              })
+              }else {
+                return res.status(409).json({
+                    success: false,
+                    message: "User account not updated"
+                })     
+            }
+          }catch(error){
+            return res.status(500).json({
+              message: 'Internal Server Error' + error,
+              success: false
+            })
+          }
+      }
+      async deleteUser(req: Request, res: Response){
+        try{
+          const id = req.params.id
+          //checks if a user exists before deleting
+          const existingUser = await userService.find({
+            _id: id
+        })
+        if(!existingUser){
+          return res.status(400).json({
+            message: "User not found",
+            success: false
+        })
+        }
+        // delete customer if the customer was found
+        const deleted = await userService.deleteOne(id)
+        return res.status(200).json({
+            message: "User account deleted",
+            success: true,
+            deleted
+            
+        })
+        }catch(error){
+            return res.status(500).json({
+              message: 'Internal Server Error' + error,
+              success: false
+          })
+        }
+
+      }
+
 }
+export default new UserController();
